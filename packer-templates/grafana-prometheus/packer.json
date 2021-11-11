@@ -1,0 +1,49 @@
+{
+    "description": "This is the Packer file for building AMI with Grafana and Prometheus",
+    "variables": {
+      "aws_access_key_id":     "{{ env `AWS_ACCESS_KEY_ID` }}",
+      "aws_secret_access_key": "{{ env `AWS_SECRET_ACCESS_KEY` }}",
+      "aws_region":            "us-east-1",
+      "inst_type":             "t2.micro",
+      "ssh_user":              "ec2-user"
+    },
+    "builders": [
+      {
+        "name": "amazon-ebs-centos-systemd",
+        "type": "amazon-ebs",
+        "access_key": "{{ user `aws_access_key_id` }}",
+        "secret_key": "{{ user `aws_secret_access_key` }}",
+        "region": "{{ user `aws_region` }}",
+        "force_deregister": true,
+        "force_delete_snapshot": true,
+        "ssh_pty": false,
+        "instance_type": "{{ user `inst_type` }}",
+        "associate_public_ip_address": true,
+        "source_ami": "ami-00e87074e52e6c9f9",
+        "ssh_username": "{{ user `ssh_user` }}",
+        "ssh_timeout": "5m",
+        "ami_name": "jenkins-node-base-image-centos-7-{{ timestamp }}",
+        "communicator": "ssh",
+        "tags": {
+          "Name": "Grafana Prometheus {{ timestamp }}",
+          "system": "Jenkins",
+          "product": "Jenkins Node",
+          "built-by": "DevOps Platform Team",
+          "owner": "DevOps Platform Team",
+          "os": "centos",
+          "os-version": "7"
+        }
+      }
+    ],
+    "provisioners": [
+
+      {
+        "type": "shell",
+        "script": "script.sh"
+      },
+      {
+        "type": "shell",
+        "script": "cleanup.sh"
+      }
+    ]
+  }
